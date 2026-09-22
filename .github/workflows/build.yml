@@ -56,6 +56,7 @@ jobs:
       - name: Build APK with Gradle
         working-directory: android
         run: |
+          chmod +x gradlew
           ./gradlew assembleDebug 2>&1 | tee build.log || true
           if grep -q "BUILD FAILED" build.log; then
             echo "===== ERRO REAL ====="
