@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.gkd.automacao',
-  appName: 'GKD Automacao',
+  appName: 'Automação',
   webDir: 'dist'
 };
 
