@@ -1,11 +1,35 @@
-- name: Create Capacitor config
+name: build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Install Capacitor
+        run: npm install @capacitor/core @capacitor/cli @capacitor/android --legacy-peer-deps
+
+      - name: Create Capacitor config
         run: |
           if [ ! -f "capacitor.config.json" ]; then
-            cat > capacitor.config.json << 'EOF'
-          {
-            "appId": "com.gkd.automacao",
-            "appName": "Automação",
-            "webDir": "dist"
-          }
-          EOF
+            printf '{\n  "appId": "com.gkd.automacao",\n  "appName": "Automacao",\n  "webDir": "dist"\n}\n' > capacitor.config.json
           fi
+
+      - nam
