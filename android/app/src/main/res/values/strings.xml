@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GKD Automação</string>
+    <string name="title_activity_main">GKD Automação</string>
+    <string name="package_name">com.gkd.automacao</string>
+    <string name="custom_url_scheme">com.gkd.automacao</string>
+    <string name="servicedesc">GKD Service</string>
+    <string name="aiddesc">GKD Lock AID</string>
+</resources>
