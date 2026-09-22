@@ -43,7 +43,7 @@ jobs:
 
       - name: Fix Kotlin stdlib conflict
         run: |
-          printf '\nconfigurations.all {\n    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")\n    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")\n}\n' >> android/app/build.gradle.kts
+          printf '\nallprojects {\n    configurations.all {\n        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")\n        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")\n    }\n}\n' >> android/build.gradle.kts
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
