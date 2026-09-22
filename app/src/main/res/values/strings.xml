@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">GKD Automação</string>
+    <string name="servicedesc">GKD Service</string>
+    <string name="aiddesc">GKD Lock AID</string>
+</resources>

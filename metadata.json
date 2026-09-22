@@ -1,0 +1,8 @@
+{
+  "name": "Android HCE Smart Lock Generator",
+  "description": "Gerador de código Android HCE em Kotlin para simulação de RFID/NFC e fechaduras eletrônicas com UID customizado.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
