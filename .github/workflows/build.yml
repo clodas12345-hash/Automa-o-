@@ -24,13 +24,10 @@ jobs:
         run: npm run build
 
       - name: Install Capacitor
-        run: npm install @capacitor/core @capacitor/cli @capacitor/android --legacy-peer-deps
+        run: npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/assets --legacy-peer-deps
 
-      - name: Create Capacitor config
-        run: |
-          if [ ! -f "capacitor.config.json" ]; then
-            printf '{\n  "appId": "com.gkd.automacao",\n  "appName": "Automação",\n  "webDir": "dist"\n}\n' > capacitor.config.json
-          fi
+      - name: Generate Assets
+        run: npx @capacitor/assets generate --android --icon public/automocao.png
 
       - name: Add Android platform
         run: |
