@@ -75,11 +75,13 @@ jobs:
           api-level: 34
           arch: x86_64
           script: |
-            adb install android/app/build/outputs/apk/debug/app-debug.apk
+            echo "===== Verificando APK ====="
+            ls -la "$GITHUB_WORKSPACE/android/app/build/outputs/apk/debug/"
+            adb install "$GITHUB_WORKSPACE/android/app/build/outputs/apk/debug/app-debug.apk"
             adb shell monkey -p com.gkd.automacao -c android.intent.category.LAUNCHER 1
             sleep 5
-            adb logcat -d | grep -A 30 "AndroidRuntime" > crash_log.txt || true
-            cat crash_log.txt
+            adb logcat -d | grep -A 30 "AndroidRuntime" > "$GITHUB_WORKSPACE/crash_log.txt" || true
+            cat "$GITHUB_WORKSPACE/crash_log.txt"
 
       - name: Upload crash log
         uses: actions/upload-artifact@v4
