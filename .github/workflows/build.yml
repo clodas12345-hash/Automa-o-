@@ -35,7 +35,13 @@ jobs:
           npx cap add android
 
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: |
+          npx cap sync android
+          # Garantir permissão de internet e tráfego em texto claro
+          if ! grep -q "android.permission.INTERNET" android/app/src/main/AndroidManifest.xml; then
+            sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.INTERNET" />' android/app/src/main/AndroidManifest.xml
+          fi
+          sed -i 's/<application/<application android:usesCleartextTraffic="true"/' android/app/src/main/AndroidManifest.xml
 
       - name: Fix Kotlin stdlib conflict
         run: echo 'allprojects { configurations.all { resolutionStrategy.eachDependency { if (requested.group == "org.jetbrains.kotlin") { useVersion("1.9.24") } } } }' >> android/build.gradle

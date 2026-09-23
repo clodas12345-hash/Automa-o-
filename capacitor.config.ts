@@ -5,7 +5,8 @@ const config: CapacitorConfig = {
   appName: 'Automação',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'http',
+    cleartext: true
   }
 };
 
