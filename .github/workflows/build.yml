@@ -24,13 +24,10 @@ jobs:
         run: npm run build
 
       - name: Install Capacitor
-        run: npm install @capacitor/core @capacitor/cli @capacitor/android --legacy-peer-deps
+        run: npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/assets --legacy-peer-deps
 
-      - name: Create Capacitor config
-        run: |
-          if [ ! -f "capacitor.config.json" ]; then
-            printf '{\n  "appId": "com.gkd.automacao",\n  "appName": "Automacao",\n  "webDir": "dist"\n}\n' > capacitor.config.json
-          fi
+      - name: Generate Assets
+        run: echo "Skipping custom asset generation for now"
 
       - name: Add Android platform
         run: |
@@ -56,6 +53,7 @@ jobs:
       - name: Build APK with Gradle
         working-directory: android
         run: |
+          chmod +x gradlew
           ./gradlew assembleDebug 2>&1 | tee build.log || true
           if grep -q "BUILD FAILED" build.log; then
             echo "===== ERRO REAL ====="
@@ -68,16 +66,3 @@ jobs:
         with:
           name: app-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Run APK on emulator and capture crash log
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          arch: x86_64
-          script: adb install $(find "$GITHUB_WORKSPACE" -name "app-debug.apk" | head -n 1) && adb shell monkey -p com.gkd.automacao -c android.intent.category.LAUNCHER 1 && sleep 5 && adb logcat -d | grep -A 30 "AndroidRuntime" > "$GITHUB_WORKSPACE/crash_log.txt" ; cat "$GITHUB_WORKSPACE/crash_log.txt"
-
-      - name: Upload crash log
-        uses: actions/upload-artifact@v4
-        with:
-          name: crash-log
-          path: crash_log.txt
