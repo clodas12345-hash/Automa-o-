@@ -63,9 +63,6 @@ jobs:
             exit 1
           fi
 
-      - name: Verify APK exists after build
-        run: find "$GITHUB_WORKSPACE/android" -name "*.apk"
-
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -77,20 +74,7 @@ jobs:
         with:
           api-level: 34
           arch: x86_64
-          script: |
-            echo "===== Procurando o APK ====="
-            APK_PATH=$(find "$GITHUB_WORKSPACE" -name "app-debug.apk" | head -n 1)
-            echo "APK encontrado em: $APK_PATH"
-            if [ -z "$APK_PATH" ]; then
-              echo "APK NAO ENCONTRADO"
-              find "$GITHUB_WORKSPACE" -name "*.apk"
-              exit 1
-            fi
-            adb install "$APK_PATH"
-            adb shell monkey -p com.gkd.automacao -c android.intent.category.LAUNCHER 1
-            sleep 5
-            adb logcat -d | grep -A 30 "AndroidRuntime" > "$GITHUB_WORKSPACE/crash_log.txt" || true
-            cat "$GITHUB_WORKSPACE/crash_log.txt"
+          script: adb install $(find "$GITHUB_WORKSPACE" -name "app-debug.apk" | head -n 1) && adb shell monkey -p com.gkd.automacao -c android.intent.category.LAUNCHER 1 && sleep 5 && adb logcat -d | grep -A 30 "AndroidRuntime" > "$GITHUB_WORKSPACE/crash_log.txt" ; cat "$GITHUB_WORKSPACE/crash_log.txt"
 
       - name: Upload crash log
         uses: actions/upload-artifact@v4
