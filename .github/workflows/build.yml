@@ -1,3 +1,4 @@
+```yaml
 name: build
 
 on:
@@ -53,7 +54,26 @@ jobs:
           java-version: '21'
 
       - name: Decode debug keystore
-        run: echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 -d > android/app/debug.keystore
+        run: |
+          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | tr -d '[:space:]' | base64 -d > android/app/debug.keystore
+          echo "Tamanho do arquivo decodificado:"
+          ls -la android/app/debug.keystore
+
+      - name: Forçar signingConfig do App para Usar o Keystore Fixo
+        run: |
+          if grep -q "android.signingConfigs.debug.storeFile" android/app/build.gradle; then
+            echo "signingConfig já estava forçado — nada a fazer"
+            exit 0
+          fi
+          cat >> android/app/build.gradle << 'EOF'
+
+          android.signingConfigs.debug.storeFile = new File("${project.projectDir}/debug.keystore")
+          android.signingConfigs.debug.storePassword = "android"
+          android.signingConfigs.debug.keyAlias = "androiddebugkey"
+          android.signingConfigs.debug.keyPassword = "android"
+          android.buildTypes.debug.signingConfig = android.signingConfigs.debug
+          EOF
+          echo "signingConfig do buildType debug forçado a usar android/app/debug.keystore"
 
       - name: Build APK with Gradle
         working-directory: android
@@ -66,8 +86,22 @@ jobs:
             exit 1
           fi
 
+      - name: Verificar Fingerprint da Assinatura do APK
+        continue-on-error: true
+        run: |
+          SDK=${ANDROID_HOME:-/usr/local/lib/android/sdk}
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          APKSIGNER=$(ls $SDK/build-tools/*/apksigner 2>/dev/null | sort -V | tail -1)
+          echo "=== Fingerprint da assinatura deste APK (compare entre builds) ==="
+          if [ -z "$APKSIGNER" ]; then
+            echo "apksigner nao encontrado - pulando verificacao"
+            exit 0
+          fi
+          "$APKSIGNER" verify --print-certs "$APK" | grep -i "SHA-256\|SHA-1"
+
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
+```
