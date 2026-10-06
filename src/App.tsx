@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { App as CapApp } from '@capacitor/app';
 import { 
   Settings, 
   X, 
@@ -33,6 +34,83 @@ export default function App() {
   const [showLogoDetail, setShowLogoDetail] = useState(false);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'lock' | 'gate' | 'other'>('all');
+
+  // Referência do estado de navegação para o listener do botão voltar
+  const navStateRef = useRef({
+    editingDevice,
+    showAddModal,
+    showAlexaGuide,
+    showLogsModal,
+    showSettingsModal,
+    showLogoDetail,
+    selectedFilter,
+  });
+  navStateRef.current = {
+    editingDevice,
+    showAddModal,
+    showAlexaGuide,
+    showLogsModal,
+    showSettingsModal,
+    showLogoDetail,
+    selectedFilter,
+  };
+
+  // Previne que o botão voltar feche o app: volta para a tela inicial ou não faz nada
+  useEffect(() => {
+    let isMounted = true;
+    let listenerHandle: { remove: () => Promise<void> } | undefined;
+
+    CapApp.addListener('backButton', () => {
+      const {
+        editingDevice,
+        showAddModal,
+        showAlexaGuide,
+        showLogsModal,
+        showSettingsModal,
+        showLogoDetail,
+        selectedFilter,
+      } = navStateRef.current;
+
+      // Se estiver em qualquer tela/modal que não seja a inicial, volte para a tela inicial
+      if (
+        editingDevice !== null ||
+        showAddModal ||
+        showAlexaGuide ||
+        showLogsModal ||
+        showSettingsModal ||
+        showLogoDetail
+      ) {
+        setEditingDevice(null);
+        setShowAddModal(false);
+        setShowAlexaGuide(false);
+        setShowLogsModal(false);
+        setShowSettingsModal(false);
+        setShowLogoDetail(false);
+        return;
+      }
+
+      // Se estiver em um filtro que não seja o inicial, volta para todos
+      if (selectedFilter !== 'all') {
+        setSelectedFilter('all');
+        return;
+      }
+
+      // Se já estiver na tela inicial, não faça nada (nunca feche o app)
+    }).then((handle) => {
+      if (!isMounted) {
+        handle.remove();
+      } else {
+        listenerHandle = handle;
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      if (listenerHandle) {
+        listenerHandle.remove();
+      }
+    };
+  }, []);
 
   // Load saved devices on startup
   useEffect(() => {
